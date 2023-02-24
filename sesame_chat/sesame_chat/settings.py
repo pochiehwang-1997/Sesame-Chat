@@ -145,7 +145,7 @@ STATIC_URL = "https://%s/%s/" %(AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
 STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 AWS_S3_OBJECT_PARAMETERS = {
-    "CacheControl" : "max-age=86400"
+    "CacheControl" : "max-age=86400"  
 }
 
 DEFAULT_FILE_STORAGE = 'sesame_chat.storage_backends.MediaStorage'
