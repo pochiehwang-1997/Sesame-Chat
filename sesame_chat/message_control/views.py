@@ -1,0 +1,6 @@
+from rest_framework.viewsets import ModelViewSet
+from .serializer import GenericFileUpload, GenericFileUploadSerializer
+
+class GenericFileUploadView(ModelViewSet):
+    queryset = GenericFileUpload.objects.all()
+    serializer_class = GenericFileUploadSerializer
