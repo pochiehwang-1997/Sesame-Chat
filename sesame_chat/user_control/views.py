@@ -5,11 +5,12 @@ from django.conf import settings
 import random
 import string
 from rest_framework.views import APIView
-from .serializers import LoginSerializer, RegisterSerializer, RefreshSerializer
+from .serializers import LoginSerializer, RegisterSerializer, RefreshSerializer, UserProfileSerializer, UserProfile
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from .authentication import Authentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
 
 
 def get_random(length):
@@ -101,3 +102,8 @@ class GetSecuredInfo(APIView):
     def get(self, request):
         print(request.user)
         return Response({"data": "This is a secured info"})
+    
+class UserProfileView(ModelViewSet):
+    permission_classes = [IsAuthenticated] # Who can access the API endpoint
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
