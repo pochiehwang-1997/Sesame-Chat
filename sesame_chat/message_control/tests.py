@@ -21,11 +21,10 @@ class TestFileUpload(APITestCase):
         avatar = create_image(None, 'avatar.png')
         avatar_file = SimpleUploadedFile('front.png', avatar.getvalue())
         data = {
-            "file_upload": avatar_file
+            "file_upload": avatar_file,
         }
 
         response = self.client.post(self.file_upload_url, data=data)
         result = response.json()
-        print(result)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(result["id"], 1)
