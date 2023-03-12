@@ -28,3 +28,37 @@ class TestFileUpload(APITestCase):
         result = response.json()
         self.assertEqual(response.status_code, 201)
         self.assertEqual(result["id"], 1)
+
+class TestMessage(APITestCase):
+    message_url = "/message/message"
+
+    def setUp(self):
+        from user_control.models import CustomUser, UserProfile
+
+        # sender
+        self.sender = CustomUser.objects._create_user("sender", "sender123")
+        UserProfile.objects.create(first_name="sender", user=self.sender, caption="sender", about="sender")
+
+        # receiver
+        self.receiver = CustomUser.objects._create_user("receiver", "receiver123")
+        UserProfile.objects.create(first_name="receiver", user=self.receiver, caption="receiver", about="receiver")
+
+        # authenticate client
+        self.client.force_authenticate(user=self.sender)
+    
+    def test_post_message(self):
+        payload = {
+            "sender_id": self.sender.id,
+            "receiver_id": self.receiver.id,
+            "message": "test message"
+        }
+
+        # processing
+        response = self.client.post(self.message_url, data=payload)
+        result = response.json()
+
+        # assertions
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(result["message"], "test message")
+        self.assertEqual(result["sender"]["user"]["username"], "sender")
+        self.assertEqual(result["receiver"]["user"]["username"], "receiver")
