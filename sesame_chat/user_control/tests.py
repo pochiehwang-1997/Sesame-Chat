@@ -1,5 +1,5 @@
 from rest_framework.test import APITestCase
-from .models import CustomUser
+from .models import CustomUser, UserProfile
 from .views import get_access_token, get_random, get_refresh_token
 from message_control.tests import create_image, SimpleUploadedFile
 
@@ -66,13 +66,16 @@ class TestAuth(APITestCase):
 class TestUserProfile(APITestCase):
     profile_url = "/user/profile"
     file_upload_url = "/message/file-upload"
+    def setUp(self):
+        self.user = CustomUser.objects._create_user(
+            username="cammy", password="Cammy922!")
+        
+        self.client.force_authenticate(user=self.user)
     
     def test_post_user_profile(self):
-        user = CustomUser.objects.create(
-            username="cammy", password="Cammy922!")
-        self.client.force_authenticate(user=user)
+        
         payload = {
-            "user_id": user.id,
+            "user_id": self.user.id,
             "first_name": "Cammy",
             "last_name": "Lee",
             "caption": "All I wanna do is eating and sleeping",
@@ -95,11 +98,8 @@ class TestUserProfile(APITestCase):
         image_response = self.client.post(self.file_upload_url, data=data)
         image_result = image_response.json()
 
-        user = CustomUser.objects.create(
-            username="cammy", password="Cammy922!")
-        self.client.force_authenticate(user=user)
         payload = {
-            "user_id": user.id,
+            "user_id": self.user.id,
             "first_name": "Cammy",
             "last_name": "Lee",
             "caption": "All I wanna do is eating and sleeping",
@@ -115,11 +115,9 @@ class TestUserProfile(APITestCase):
     
     def test_update_user_profile(self):
         # Create user
-        user = CustomUser.objects.create(
-            username="cammy", password="Cammy922!")
-        self.client.force_authenticate(user=user)
+
         payload = {
-            "user_id": user.id,
+            "user_id": self.user.id,
             "first_name": "Cammy",
             "last_name": "Lee",
             "caption": "All I wanna do is eating and sleeping",
@@ -129,7 +127,7 @@ class TestUserProfile(APITestCase):
         create_result = self.client.post(self.profile_url, data=payload).json()
         
         payload = {
-            "user_id": user.id,
+            "user_id": self.user.id,
             "first_name": "Yi-Chen",
             "last_name": "Lee",
             "caption": "I am hungry",
@@ -140,3 +138,20 @@ class TestUserProfile(APITestCase):
         result = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(result["first_name"], "Yi-Chen")
+
+    def test_user_search(self):
+        UserProfile.objects.create(user=self.user, first_name="Cammy", last_name="Lee", 
+                                   caption="All I wanna do is eating and sleeping", about="Life is hard, so just go to bed")
+        tester = CustomUser.objects._create_user(
+            username="tester", password="Tester922!")
+        UserProfile.objects.create(user=tester, first_name="Tester", last_name="No1", 
+                                   caption="All I wanna do is eating and sleeping", about="Life is hard, so just go to bed")
+        
+        url = self.profile_url + "?keyword=Lee"
+
+        response = self.client.get(url)
+        result = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["user"]["username"], "cammy")
