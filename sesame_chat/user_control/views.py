@@ -9,7 +9,7 @@ from .serializers import LoginSerializer, RegisterSerializer, RefreshSerializer,
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from .authentication import Authentication
-from rest_framework.permissions import IsAuthenticated
+from sesame_chat.custom_methods import IsAuthenticatedCustom
 from rest_framework.viewsets import ModelViewSet
 import re
 from django.db.models import Q
@@ -99,14 +99,14 @@ class RefreshView(APIView):
 
 
 class GetSecuredInfo(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get(self, request):
         print(request.user)
         return Response({"data": "This is a secured info"})
     
 class UserProfileView(ModelViewSet):
-    permission_classes = [IsAuthenticated] # Who can access the API endpoint
+    permission_classes = [IsAuthenticatedCustom] # Who can access the API endpoint
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
 
