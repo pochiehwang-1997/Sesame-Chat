@@ -1,7 +1,9 @@
 from rest_framework.viewsets import ModelViewSet
 from .serializer import GenericFileUpload, GenericFileUploadSerializer, Message, MessageAttachment, MessageSerializer
-from rest_framework.permissions import IsAuthenticated
+from sesame_chat.custom_methods import IsAuthenticatedCustom
 from rest_framework.response import Response
+from django.db.models import Q
+
 
 class GenericFileUploadView(ModelViewSet):
     queryset = GenericFileUpload.objects.all()
@@ -10,11 +12,23 @@ class GenericFileUploadView(ModelViewSet):
 class MessageView(ModelViewSet):
     queryset = Message.objects.select_related("sender", "receiver").prefetch_related("message_attachments")
     serializer_class = MessageSerializer
+    permission_classes = (IsAuthenticatedCustom,)
+
+    def get_queryset(self):
+        data = self.request.query_params.dict()
+        user_id = data.get("user_id", None)
+        
+        if user_id is None:
+            return self.queryset
+        
+        active_user_id = self.request.user.id
+        return self.queryset.filter(Q(sender_id=user_id, receiver_id=active_user_id)|Q(sender_id=active_user_id, receiver_id=user_id)).distinct()
 
     def create(self, request, *args, **kwargs):
 
         request.data._mutable = True
         attachments = request.data.pop("attachments", None)
+        
 
         if str(request.user.id) != str(request.data.get("sender_id", None)):
             raise Exception("Only sender can create a message")
