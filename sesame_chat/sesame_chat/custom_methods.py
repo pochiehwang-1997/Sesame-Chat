@@ -11,6 +11,7 @@ class IsAuthenticatedCustom(BasePermission):
             from user_control.models import CustomUser
             CustomUser.objects.filter(id=request.user.id).update(is_online=timezone.now())
             return True
+        print(request.user)
         return False
     
 class IsAuthenticatedOrReadCustom(BasePermission):
