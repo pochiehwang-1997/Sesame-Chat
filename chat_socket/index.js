@@ -17,7 +17,6 @@ app.use(bodyParser.json());
 
 app.post("/server", (req, res) => {
   io.emit("command", req.body);
-  console.log(req.body);
   res.status(201).json({ status: "reached" });
 });
 

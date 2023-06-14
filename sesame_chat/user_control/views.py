@@ -1,11 +1,11 @@
 import jwt
-from .models import Jwt, CustomUser, Favorite
+from .models import Jwt, CustomUser, Favorite, Friend
 from datetime import datetime, timedelta
 from django.conf import settings
 import random
 import string
 from rest_framework.views import APIView
-from .serializers import LoginSerializer, RegisterSerializer, RefreshSerializer, UserProfileSerializer, UserProfile, FavoriteSerializer, FavoriteModelSerializer
+from .serializers import LoginSerializer, RegisterSerializer, RefreshSerializer, UserProfileSerializer, UserProfile, FavoriteSerializer, FavoriteModelSerializer, FriendSerializer
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from .authentication import Authentication
@@ -33,6 +33,19 @@ def get_refresh_token():
         settings.SECRET_KEY,
         algorithm="HS256"
     )
+
+
+def decodeJWT(bearer):
+    if not bearer:
+        return None
+
+    token = bearer[7:]
+    decoded = jwt.decode(token, key=settings.SECRET_KEY, algorithms=['HS256'])
+    if decoded:
+        try:
+            return CustomUser.objects.get(id=decoded["user_id"])
+        except Exception:
+            return None
 
 
 class LoginView(APIView):
@@ -65,6 +78,7 @@ class RegisterView(APIView):
     serializer_class = RegisterSerializer
 
     def post(self, request):
+
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -105,19 +119,6 @@ class GetSecuredInfo(APIView):
         return Response({"data": "This is a secured info"})
 
 
-def decodeJWT(bearer):
-    if not bearer:
-        return None
-
-    token = bearer[7:]
-    decoded = jwt.decode(token, key=settings.SECRET_KEY, algorithms=['HS256'])
-    if decoded:
-        try:
-            return CustomUser.objects.get(id=decoded["user_id"])
-        except Exception:
-            return None
-
-
 class UserProfileView(ModelViewSet):
     # Who can access the API endpoint
     queryset = UserProfile.objects.all()
@@ -140,27 +141,31 @@ class UserProfileView(ModelViewSet):
                 return self.queryset.filter(query).filter(**data).exclude(
                     Q(user_id=self.request.user.id) |
                     Q(user__is_superuser=True)
-                ).annotate(
-                    fav_count=Count(self.user_fav_query(self.request.user))
-                ).order_by("-fav_count")
+                )
             except Exception as e:
                 raise Exception(e)
 
-        result = self.queryset.filter(**data).exclude(
-            Q(user_id=self.request.user.id) |
-            Q(user__is_superuser=True)
-        )
+        try:
+            friends = self.request.user.user_friends.friend.all()
+            query = self.get_friend_id(friends)
+            result = self.queryset.filter(query).filter(**data).exclude(
+                Q(user_id=self.request.user.id) |
+                Q(user__is_superuser=True)
+            )
+        except:
+            result = self.queryset.none()
 
         return result
 
     @staticmethod
-    def user_fav_query(user):
-        try:
-            print(user.user_favorites.favorite.filter(
-                id=OuterRef("user_id")).values("pk"))
-            return user.user_favorites.favorite.filter(id=OuterRef("user_id")).values("pk")
-        except Exception:
-            return []
+    def get_friend_id(friends):
+        result = None
+        for friend in friends:
+            q = Q(user_id=friend.id)
+            if result == None:
+                result = q
+            result = result | q
+        return result
 
     @staticmethod
     def get_query(query_string, search_fields):
@@ -223,7 +228,7 @@ class FavoriteView(APIView):
             seriailzer = FavoriteModelSerializer(result)
             return Response(seriailzer.data["favorite"])
         except:
-            return  Response([])
+            return Response([])
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -261,3 +266,33 @@ class CheckIsFavoriteView(APIView):
             return Response(False)
         except Exception:
             return Response(False)
+
+
+class FriendView(APIView):
+    permission_classes = (IsAuthenticatedCustom,)
+    serializer_class = FriendSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            friend = CustomUser.objects.get(
+                id=serializer.validated_data["friend_id"])
+        except Exception:
+            raise Exception("Friend does not exist")
+
+        try:
+            user_friends = request.user.user_friends
+        except Exception:
+            user_friends = Friend.objects.create(user_id=request.user.id)
+
+        try:
+            friend_friends = friend.user_friends
+        except Exception:
+            friend_friends = Friend.objects.create(user_id=friend.id)
+
+        if not user_friends.friend.filter(id=friend.id):
+            user_friends.friend.add(friend)
+        if not friend_friends.friend.filter(id=request.user.id):
+            friend_friends.friend.add(request.user)
+        return Response("added")

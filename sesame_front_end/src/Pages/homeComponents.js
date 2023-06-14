@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect } from "react";
-import close from "../assets/close.svg";
+import close from "../assets/close.png";
 import edit from "../assets/edit.png";
 import Loader from "../components/loader";
 import { axiosHandler, errorHandler, getToken } from "../helper";
 import { userDetailAction } from "../stateManagement/actions";
 import { store } from "../stateManagement/store";
 import { PROFILE_URL, FILE_UPLOAD_URL } from "../urls";
+import defaultUserphoto from "../assets/defaultUser.png"
 
 export const UserMain = (props) => {
   let _count = 0;
@@ -41,7 +42,7 @@ export const UserAvatar = (props) => {
       <div
         className="imageCon"
         style={{
-          backgroundImage: `url("${props.profilePicture}")`,
+          backgroundImage: `url("${props.profilePicture ? props.profilePicture : defaultUserphoto}")`,
         }}
       />
       <div className="contents">
@@ -153,7 +154,7 @@ export const ProfileModal = (props) => {
                 </div>:
                   <div className="point" onClick={() => profileRef.click()}>
                   Change Picture
-                  <img src={edit} />
+                  <img src={edit}  width="17" height="17"/>
                 </div>
                 }
                </>

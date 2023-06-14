@@ -26,7 +26,7 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self._create_user(username, password, **extra_fields)
+        return self._create_user(username, password, email="superuser@gmail.com", **extra_fields)
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -89,3 +89,12 @@ class Jwt(models.Model):
     refresh = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class Friend(models.Model):
+    user = models.OneToOneField(
+        CustomUser, related_name="user_friends", on_delete=models.CASCADE)
+    friend = models.ManyToManyField(CustomUser, related_name="user_friended")
+
+    def __str__(self):
+        return f"{self.user.username}"

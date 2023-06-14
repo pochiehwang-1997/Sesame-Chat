@@ -64,7 +64,7 @@ const Login = (props) => {
         </div>
       ) : (
         <div className="inner">
-          <div className="logo">DEVTOT</div>
+          <div className="logo">SESAME CHAT</div>
           <div className="title">Sign in</div>
           <AuthForm
             login
