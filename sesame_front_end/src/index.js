@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
 import { StoreProvider } from './stateManagement/store';
 import SocketService from './socketService';
 import Router from './router';

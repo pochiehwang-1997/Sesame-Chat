@@ -18,22 +18,10 @@ function UsersList() {
   const [nextPage, setNextPage] = useState(1);
   const [canGoNext, setCanGoNext] = useState(false);
   const [search, setSearch] = useState("");
-
   const {
     state: { triggerRefreshUserList },
     dispatch,
   } = useContext(store);
-
-  useEffect(() => {
-    getUserList();
-  }, [search]);
-
-  useEffect(() => {
-    if (triggerRefreshUserList) {
-      getUserList();
-      dispatch({ type: triggerRefreshUserListAction, payload: false });
-    }
-  }, [triggerRefreshUserList]);
 
   const getUserList = async (append = false) => {
     let extra = "";
@@ -64,8 +52,7 @@ function UsersList() {
         url: FAVORITE_URL,
         token: _token,
       }).catch((e) => null);
-
-      setUsers(sortUsers(temp_users,fav_users));
+      setUsers(sortUsers(temp_users, fav_users));
       setFetching(false);
     }
 
@@ -112,6 +99,17 @@ function UsersList() {
       }
     }
   };
+
+  useEffect(() => {
+    getUserList();
+  }, [search]);
+
+  useEffect(() => {
+    if (triggerRefreshUserList) {
+      getUserList();
+      dispatch({ type: triggerRefreshUserListAction, payload: false });
+    }
+  }, [triggerRefreshUserList]);
 
   return (
     <div>

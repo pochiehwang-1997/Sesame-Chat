@@ -8,7 +8,7 @@ let socket;
 
 const SocketService = () => {
   const {
-    state: { userDetail },
+    state: { userDetail, activeChat },
     dispatch,
   } = useContext(store);
 
@@ -16,7 +16,7 @@ const SocketService = () => {
     socket = openSocket(SOCKET_URL);
     socket.on("command", (data) => {
       if (!userDetail) return;
-      if (userDetail !== data.receiver) return;
+      if (userDetail.id !== data.receiver.id) return;
       dispatch({ type: activeChatAction, payload: data });
     });
   };
