@@ -1,23 +1,45 @@
 import React, { createContext, useReducer } from "react";
-import { updateChatReducer, updateChatState } from "./reducers";
+import {
+  updateChatReducer,
+  updateChatState,
+  userDetailReducer,
+  userDetailState,
+  activeChatReducer,
+  activeChatState,
+  activeChatUserReducer,
+  activeChatUserState,
+    triggerRefreshUserListReducer,
+    triggerRefreshUserListState
+} from "./reducers";
 
-const reduceReducer =
-  (...reducers) =>
-  (prevState, value, ...args) => {
-    reducers.reduce(
-      (newState, reducer) => reducer(newState, value, ...args),
-      prevState
-    );
-  };
+const reduceReducers = (...reducers) => (prevState, value, ...args) => {
+  return reducers.reduce(
+    (newState, reducer) => reducer(newState, value, ...args),
+    prevState
+  );
+};
 
-const combineReducers = reduceReducer(updateChatReducer);
-const initialState = {...updateChatState};
+const combinedReducers = reduceReducers(
+  updateChatReducer,
+  userDetailReducer,
+  activeChatReducer,
+  activeChatUserReducer,
+    triggerRefreshUserListReducer
+);
+
+const initialState = {
+  ...updateChatState,
+  ...userDetailState,
+  ...activeChatState,
+  ...activeChatUserState,
+  ...triggerRefreshUserListState
+};
 
 const store = createContext(initialState);
 const { Provider } = store;
 
 const StoreProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(combineReducers, initialState);
+  const [state, dispatch] = useReducer(combinedReducers, initialState);
 
   return <Provider value={{ state, dispatch }}>{children}</Provider>;
 };

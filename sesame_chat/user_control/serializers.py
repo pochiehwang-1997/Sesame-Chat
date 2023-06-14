@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserProfile, CustomUser
+from .models import UserProfile, CustomUser, Favorite
 from message_control.serializer import GenericFileUploadSerializer
 from django.db.models import Q
 
@@ -12,6 +12,7 @@ class LoginSerializer(serializers.Serializer):
 class RegisterSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+    email = serializers.EmailField()
 
 
 class RefreshSerializer(serializers.Serializer):
@@ -29,9 +30,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)
     user_id = serializers.IntegerField(write_only=True)
     profile_picture = GenericFileUploadSerializer(read_only=True)
-    profile_picture_id = serializers.IntegerField(write_only=True, required=False)
+    profile_picture_id = serializers.IntegerField(
+        write_only=True, required=False)
     message_count = serializers.SerializerMethodField("get_message_count")
-    
+
     class Meta:
         model = UserProfile
         fields = "__all__"
@@ -43,6 +45,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
             user_id = None
 
         from message_control.models import Message
-        message = Message.objects.filter(Q(sender_id=user_id, receiver_id=obj.user.id)|Q(sender_id=obj.user.id, receiver_id=user_id)).distinct()
-        
+        message = Message.objects.filter(
+            sender_id=obj.user.id, receiver_id=user_id, is_read=False).distinct()
+
         return message.count()
+
+
+class FavoriteSerializer(serializers.Serializer):
+    favorite_id = serializers.IntegerField()
+
+
+class FavoriteModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = "__all__"

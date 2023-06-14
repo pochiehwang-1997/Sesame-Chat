@@ -31,20 +31,22 @@ class TestFileUpload(APITestCase):
 
 class TestMessage(APITestCase):
     message_url = "/message/message"
+    login_url = "/user/login"
 
     def setUp(self):
         from user_control.models import CustomUser, UserProfile
 
         # sender
-        self.sender = CustomUser.objects._create_user("sender", "sender123")
+        payload = {"username":"sender", "password":"sender123", "email":"sender@gmail.com"}
+        self.sender = CustomUser.objects._create_user(**payload)
         UserProfile.objects.create(first_name="sender", user=self.sender, caption="sender", about="sender")
-
+        response = self.client.post(self.login_url, data=payload)
+        result = response.json()
+        self.bearer = {
+            'HTTP_AUTHORIZATION': 'Bearer {}'.format(result['access'])}
         # receiver
-        self.receiver = CustomUser.objects._create_user("receiver", "receiver123")
+        self.receiver = CustomUser.objects._create_user("receiver", "receiver123", "receiver@gmail.com")
         UserProfile.objects.create(first_name="receiver", user=self.receiver, caption="receiver", about="receiver")
-
-        # authenticate client
-        self.client.force_authenticate(user=self.sender)
     
     def test_post_message(self):
         payload = {
@@ -54,7 +56,7 @@ class TestMessage(APITestCase):
         }
 
         # processing
-        response = self.client.post(self.message_url, data=payload)
+        response = self.client.post(self.message_url, data=payload, **self.bearer)
         result = response.json()
 
         # assertions
@@ -65,7 +67,7 @@ class TestMessage(APITestCase):
     
     def test_get_message(self):
 
-        response = self.client.get(self.message_url+f"?user_id={self.receiver.id}")
+        response = self.client.get(self.message_url+f"?user_id={self.receiver.id}", **self.bearer)
         result = response.json()
 
         self.assertEqual(response.status_code, 200)
