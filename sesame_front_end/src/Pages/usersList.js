@@ -2,26 +2,20 @@ import React, { useState, useEffect, useContext } from "react";
 import searchImg from "../assets/search.png";
 import Loader from "../components/loader";
 import { axiosHandler, getToken, LastUserChat } from "../helper";
-import {
-  activeChatUserAction,
-  triggerRefreshUserListAction,
-} from "../stateManagement/actions";
+import { activeChatUserAction } from "../stateManagement/actions";
 import { store } from "../stateManagement/store";
 import { PROFILE_URL, FAVORITE_URL } from "../urls";
 import { UserMain } from "./homeComponents";
 
 let goneNext = false;
 
-function UsersList() {
+const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [fetching, setFetching] = useState(true);
   const [nextPage, setNextPage] = useState(1);
   const [canGoNext, setCanGoNext] = useState(false);
   const [search, setSearch] = useState("");
-  const {
-    state: { triggerRefreshUserList },
-    dispatch,
-  } = useContext(store);
+  const { dispatch } = useContext(store);
 
   const getUserList = async (append = false) => {
     let extra = "";
@@ -104,13 +98,6 @@ function UsersList() {
     getUserList();
   }, [search]);
 
-  useEffect(() => {
-    if (triggerRefreshUserList) {
-      getUserList();
-      dispatch({ type: triggerRefreshUserListAction, payload: false });
-    }
-  }, [triggerRefreshUserList]);
-
   return (
     <div>
       <SearchDebouce setSearch={setSearch} />
@@ -139,7 +126,7 @@ function UsersList() {
       </div>
     </div>
   );
-}
+};
 
 let debouceTimeout;
 

@@ -3,16 +3,12 @@ import {
   userDetailAction,
   activeChatAction,
   activeChatUserAction,
-    triggerRefreshUserListAction
 } from "./actions";
 
 export const updateChatState = {
   chatState: false,
 };
 
-export const triggerRefreshUserListState = {
-  triggerRefreshUserList: false,
-};
 
 export const activeChatState = {
   activeChat: null,
@@ -37,16 +33,6 @@ export const activeChatReducer = (state, action) => {
   }
 };
 
-export const triggerRefreshUserListReducer = (state, action) => {
-  if (action.type === triggerRefreshUserListAction) {
-    return {
-      ...state,
-      triggerRefreshUserList: action.payload,
-    };
-  } else {
-    return state;
-  }
-};
 
 export const activeChatUserReducer = (state, action) => {
   if (action.type === activeChatUserAction) {

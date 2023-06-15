@@ -14,10 +14,7 @@ import {
   FRIEND_URL,
 } from "../urls";
 import moment from "moment";
-import {
-  activeChatAction,
-  triggerRefreshUserListAction,
-} from "../stateManagement/actions";
+import { activeChatAction } from "../stateManagement/actions";
 import { store } from "../stateManagement/store";
 import menu from "../assets/menu.svg";
 
@@ -59,16 +56,16 @@ const ChatInterface = (props) => {
         `?user_id=${props.activeUser.user.id}&page=${page ? page : nextPage}`,
       token,
     }).catch((e) => console.log(errorHandler(e)));
-    
+
     if (result) {
       if (isAppend) {
         setMessages([...result.data.results.reverse(), ...messages]);
         goneNext = false;
       } else {
         setMessages(result.data.results.reverse());
-        if(result.data.results.length !== 0) console.log(updateFriend(token));
+        if (result.data.results.length !== 0) updateFriend(token);
       }
-      
+
       const messages_not_read = [];
       result.data.results.map((item) => {
         if (item.is_read) return null;
@@ -92,7 +89,6 @@ const ChatInterface = (props) => {
         setTimeout(() => setShouldHandleScroll(true), 1000);
       }
     }
-    
   };
 
   const updateMessage = async (message_ids) => {
@@ -103,10 +99,11 @@ const ChatInterface = (props) => {
       token,
       data: { message_ids },
     });
-    dispatch({ type: triggerRefreshUserListAction, payload: true });
   };
 
   const reset = () => {
+    setNextPage(1);
+    setMessage("");
     setMessages([]);
     setFetching(true);
     setCanGoNext(false);
@@ -133,8 +130,7 @@ const ChatInterface = (props) => {
     const token = await getToken();
     const lastIndex = messages.length;
 
-    if(lastIndex === 0) updateFriend(token);
-  
+    if (lastIndex === 0) updateFriend(token);
 
     let data = {
       sender_id: props.loggedUser.user.id,
@@ -160,7 +156,6 @@ const ChatInterface = (props) => {
 
   const handleBubbleType = (item) => {
     if (item.sender_id) return "sender";
-
     if (item.sender.user.id === props.loggedUser.user.id) return "sender";
     else return "";
   };
@@ -190,7 +185,7 @@ const ChatInterface = (props) => {
       token,
       data: { friend_id: props.activeUser.user.id },
     }).catch((e) => console.log(errorHandler(e)));
-    return result
+    return result;
   };
 
   useEffect(() => {
