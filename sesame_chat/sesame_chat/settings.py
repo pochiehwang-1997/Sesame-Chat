@@ -105,8 +105,12 @@ CORS_ALLOW_METHODS = ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS')
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': '9BPksLxqyj1jwPBbK9GG',
+        'HOST': 'containers-us-west-111.railway.app',
+        'PORT': '6580',
     }
 }
 

@@ -8,8 +8,6 @@ import {
   activeChatState,
   activeChatUserReducer,
   activeChatUserState,
-    triggerRefreshUserListReducer,
-    triggerRefreshUserListState
 } from "./reducers";
 
 const reduceReducers = (...reducers) => (prevState, value, ...args) => {
@@ -24,7 +22,6 @@ const combinedReducers = reduceReducers(
   userDetailReducer,
   activeChatReducer,
   activeChatUserReducer,
-    triggerRefreshUserListReducer
 );
 
 const initialState = {
@@ -32,7 +29,6 @@ const initialState = {
   ...userDetailState,
   ...activeChatState,
   ...activeChatUserState,
-  ...triggerRefreshUserListState
 };
 
 const store = createContext(initialState);
