@@ -106,11 +106,11 @@ CORS_ALLOW_METHODS = ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
+        'NAME': 'sesame_chat',
         'USER': 'postgres',
-        'PASSWORD': '9BPksLxqyj1jwPBbK9GG',
-        'HOST': 'containers-us-west-111.railway.app',
-        'PORT': '6580',
+        'PASSWORD': 'Postgresql922!',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
