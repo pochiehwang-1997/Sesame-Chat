@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_DB: "sesame_chat"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Postgresql922!"
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+  sesame_chat:
+    build: ./sesame_chat
+    command: bash -c "python manage.py runserver 0.0.0.0:8000"
+    container_name: sesame_chat
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - postgres
+  chat_socket:
+    build: ./chat_socket
+    command: nodemon index.js
+    container_name: chat_socket
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    networks:
+      - postgres
+  sesame_front_end:
+    build: ./sesame_front_end
+    command: npm start
+    container_name: sesame_front_end
+    restart: unless-stopped
+    ports:
+      - "8080:3000"
+    networks:
+      - postgres
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+    postgres:
