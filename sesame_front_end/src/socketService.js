@@ -3,7 +3,7 @@ import openSocket from "socket.io-client";
 import { store } from "./stateManagement/store";
 import { activeChatAction } from "./stateManagement/actions";
 
-const SOCKET_URL = "http://localhost:9000";
+const SOCKET_URL = "http://chats-LoadB-1XE49U9OIKCDD-f806f98acf2c8594.elb.us-east-1.amazonaws.com:9000";
 let socket;
 
 const SocketService = () => {

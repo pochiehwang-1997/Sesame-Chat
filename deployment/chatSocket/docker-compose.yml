@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  chat_socket:
+    image: public.ecr.aws/g5g4y4d1/chat_socket:latest
+    command: nodemon index.js
+    container_name: chat_socket
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+
