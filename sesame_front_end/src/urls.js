@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8000/";
+const BASE_URL = "http://sesam-LoadB-GFCRZMPVWF9K-28e3720efbb39fbf.elb.us-east-1.amazonaws.com:8000/";
 
 export const LOGIN_URL = BASE_URL + "user/login";
 export const REGISTER_URL = BASE_URL + "user/register";

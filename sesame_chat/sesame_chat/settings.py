@@ -109,7 +109,7 @@ DATABASES = {
         'NAME': 'sesame_chat',
         'USER': 'postgres',
         'PASSWORD': 'Postgresql922!',
-        'HOST': 'postgres',
+        'HOST': 'pochieh.cpousg534ogc.us-east-1.rds.amazonaws.com',
         'PORT': '5432',
     }
 }

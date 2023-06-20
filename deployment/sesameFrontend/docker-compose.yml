@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  sesame_front_end:
+    image: public.ecr.aws/g5g4y4d1/sesame_front_end:latest
+    command: npm start
+    container_name: sesame_front_end
+    restart: unless-stopped
+    ports:
+      - "3000:3000"

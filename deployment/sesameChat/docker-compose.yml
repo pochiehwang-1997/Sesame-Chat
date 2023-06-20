@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  sesame_chat:
+    image: public.ecr.aws/g5g4y4d1/sesame_chat:latest
+    command: bash -c "python manage.py runserver 0.0.0.0:8000"
+    container_name: sesame_chat
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+
+
